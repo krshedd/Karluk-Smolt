@@ -286,7 +286,6 @@ Karluk2014StratifiedAbundances <- Karluk2014StratifiedEstimates$Summary*sum(Karl
 opar=par()
 require(gplots)
 par(family='serif', mar=c(4.1, 4.1, 1.1, 1.1))
-
 #### 2013 ####
 ### Proportion
 ## Both ages through time
@@ -359,8 +358,6 @@ barplot2(height=Karluk2013StratifiedAbundances[,4]/100000,
          ci.u=Karluk2013StratifiedAbundances[,5]/100000)
 abline(h=0)
 mtext(text="2013", side=3, cex=2, line=-0.5)
-
-
 #### 2014 ####
 ### Proportion
 ## Both ages through time
@@ -433,10 +430,6 @@ barplot2(height=Karluk2014StratifiedAbundances[,4]/100000,
          ci.u=Karluk2014StratifiedAbundances[,5]/100000)
 abline(h=0)
 mtext(text="2014", side=3, cex=2, line=-0.5)
-
-
-
-
 #### 2014 Weir ####
 barplot2(height=KarlukSmolt_Estimates$SKARLW14s[,3],
          beside=TRUE,plot.ci=TRUE,ylim=c(0,1),ylab="Proportion",xlab="Stock",col=c("blue","red"), cex.axis=1.5, cex.lab=1.5, cex.names=1.5,
@@ -672,7 +665,6 @@ Karluk2014Age2StratifiedAbundances <- Karluk2014Age2StratifiedEstimates$Summary*
 opar=par()
 require(gplots)
 par(family='serif', mar=c(4.1, 4.1, 1.1, 1.1))
-
 #### 2013 ####
 ### Proportion
 ## Age 2
@@ -787,12 +779,7 @@ barplot2(height=matrix(data=c(KarlukSmolt_Age2_Outmigrants_2013.1[,3],KarlukSmol
 abline(h=0)
 legend(x="topleft",legend=c("May 16-29","May 30-June 10","June 10-June 24"),fill=c("black", "grey", "white"),bty="n", cex=1.5)
 mtext(text="Age 2 - 2013", side=3, cex=2, line=-0.5)
-
-
-
-
 #### HERE ####
-
 #### 2014 ####
 ### Proportion
 ## Age 1
@@ -3028,4 +3015,46 @@ AnnualAbundancesBarplot(posterior = Karluk2014Age2StratifiedAbundancesWithMRErro
 
 ### Weir smolt
 AnnualProportionBarplot(posterior = KarlukSmoltPosteriors$Output$SKARLW14s, yr = "2014 Weir Grab Sample")
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Initial Setup for 2015 Data ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+rm(list = ls(all = TRUE))
+setwd("V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Mixtures")
+# This sources all of the new GCL functions to this workspace
+source("C:/Users/krshedd/Documents/R/Functions.GCL.R")
+source("H:/R Source Scripts/Functions.GCL_KS.R")
+
+username <- "krshedd"
+password <- "********"
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Pull genotypes from LOKI 2015 ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## Create Locus Control
+CreateLocusControl.GCL(markersuite = "Sockeye2011_96SNPs", username = username, password = password)
+
+## Save original LocusControl
+loci96 <- LocusControl$locusnames
+mito.loci96 <- which(LocusControl$ploidy == 1)
+
+dput(x = LocusControl, file = "Objects/OriginalLocusControl96_2015.txt")
+dput(x = loci96, file = "Objects/loci96_2015.txt")
+dput(x = mito.loci96, file = "Objects/mito.loci96_2015.txt")
+
+#~~~~~~~~~~~~~~~~~~
+## Pull all data for each silly code and create .gcl objects for each
+LOKI2R.GCL(sillyvec = "SKARLW15s", username = username, password = password)
+rm(username, password)
+objects(pattern = "\\.gcl")
+
+## Save unaltered .gcl's as back-up:
+dir.create("Raw genotypes/OriginalCollections")
+invisible(sapply(c("SKARLW15s"), function(silly) {dput(x = get(paste(silly, ".gcl", sep = '')), file = paste("Raw genotypes/OriginalCollections/" , silly, ".txt", sep = ''))} )); beep(8)
+
+## Original sample sizes by SILLY
+SKARLW15s.gcl$n
+
+## Fish IDs
+SKARLW15s.gcl$attributes$FK_FISH_ID
+
 
