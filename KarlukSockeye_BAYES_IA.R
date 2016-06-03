@@ -3015,6 +3015,9 @@ AnnualAbundancesBarplot(posterior = Karluk2014Age2StratifiedAbundancesWithMRErro
 
 ### Weir smolt
 AnnualProportionBarplot(posterior = KarlukSmoltPosteriors$Output$SKARLW14s, yr = "2014 Weir Grab Sample")
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #### Initial Setup for 2015 Data ####
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3058,3 +3061,136 @@ SKARLW15s.gcl$n
 SKARLW15s.gcl$attributes$FK_FISH_ID
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Clean workspace; dget .gcl objects and Locus Control ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+rm(list = ls(all = TRUE))
+setwd("V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Mixtures")
+# This sources all of the new GCL functions to this workspace
+source("C:/Users/krshedd/Documents/R/Functions.GCL.R")
+source("H:/R Source Scripts/Functions.GCL_KS.R")
+
+## Get objects
+LocusControl <- dget(file = "Objects/OriginalLocusControl96_2015.txt")
+
+## Get original mixtures
+SKARLW15s.gcl <- dget(file = "Raw genotypes/OriginalCollections/SKARLW15s.txt")
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Define strata by time for 2013 and 2014 trap fish ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#### 2013
+
+## Stratum 1 -  5/16-29
+
+unique(SKARL13s.gcl$attributes$CAPTURE_DATE)
+lapply(list(1:8, 9:16, 17:27), function(lst) {sum(table(SKARL13s.gcl$attributes$CAPTURE_DATE)[lst])})
+
+KarlukSmolt2013.1_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[1:8])
+KarlukSmolt2013.1_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.1_IDs)))
+names(KarlukSmolt2013.1_IDs) <- "SKARL13s"
+
+PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.1_IDs,newname="KarlukSmolt2013.1")
+KarlukSmolt2013.1.gcl$n ##  
+
+## Stratum 2 -  5/30-6/10
+
+KarlukSmolt2013.2_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[9:16])
+KarlukSmolt2013.2_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.2_IDs)))
+names(KarlukSmolt2013.2_IDs) <- "SKARL13s"
+
+PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.2_IDs,newname="KarlukSmolt2013.2")
+KarlukSmolt2013.2.gcl$n ##  
+
+## Stratum 3 -  6/11-6/24
+
+KarlukSmolt2013.3_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[17:27])
+KarlukSmolt2013.3_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.3_IDs)))
+names(KarlukSmolt2013.3_IDs) <- "SKARL13s"
+
+PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.3_IDs,newname="KarlukSmolt2013.3")
+KarlukSmolt2013.3.gcl$n ##  
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### QC ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+require(xlsx)
+
+KarlukMixtures <- unlist(strsplit(ls(pattern='\\.gcl'),split='\\.gcl'))
+dput(x=KarlukMixtures,file="Objects/KarlukMixtures.txt")
+
+KarlukMixtures_SampleSizes <- matrix(data=NA,nrow=length(KarlukMixtures),ncol=5,dimnames=list(KarlukMixtures,c("Genotyped","Alternate","Missing","Duplicate","Final")))
+
+
+#### Check loci
+## Get sample size by locus
+Original_KarlukMixtures_SampleSizebyLocus <- SampSizeByLocus.GCL(KarlukMixtures, loci96)
+min(Original_KarlukMixtures_SampleSizebyLocus) ## 70
+apply(Original_KarlukMixtures_SampleSizebyLocus,1,min)/apply(Original_KarlukMixtures_SampleSizebyLocus,1,max) # Known from QC that SKARLW14s had issues
+
+t(sort(Original_KarlukMixtures_SampleSizebyLocus[KarlukMixtures[9],]/max(Original_KarlukMixtures_SampleSizebyLocus[KarlukMixtures[9],]),decreasing=TRUE)) # One_ZNF.61 is just below the 80% rule for SKARLW14s
+
+#### Check individuals
+### Initial
+## Get number of individuals per silly before removing missing loci individuals
+Original_KarlukMixtures_ColSize <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures_SampleSizes[,"Genotyped"] <- Original_KarlukMixtures_ColSize
+
+
+### Alternate
+## Indentify alternate species individuals
+KarlukMixtures_Alternate <- FindAlternateSpecies.GCL(sillyvec=KarlukMixtures, species="sockeye")
+
+## Remove Alternate species individuals
+RemoveAlternateSpecies.GCL(AlternateSpeciesReport=KarlukMixtures_Alternate, AlternateCutOff=0.5, FailedCutOff=0.5)
+
+## Get number of individuals per silly after removing alternate species individuals
+ColSize_KarlukMixtures_PostAlternate <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures_SampleSizes[,"Alternate"] <- Original_KarlukMixtures_ColSize-ColSize_KarlukMixtures_PostAlternate
+
+
+### Missing
+## Remove individuals with >20% missing data
+KarlukMixtures_MissLoci <- RemoveIndMissLoci.GCL(sillyvec=KarlukMixtures,loci=loci96,proportion=0.8)
+
+## Get number of individuals per silly after removing missing loci individuals
+ColSize_KarlukMixtures_PostMissLoci <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures_SampleSizes[,"Missing"] <- ColSize_KarlukMixtures_PostAlternate-ColSize_KarlukMixtures_PostMissLoci
+
+
+### Duplicate
+## Check within collections for duplicate individuals.
+KarlukMixtures_DuplicateCheck95MinProportion <- CheckDupWithinSilly.GCL(sillyvec=KarlukMixtures,loci=loci96,quantile=NULL,minproportion=0.95)
+KarlukMixtures_DuplicateCheckReportSummary <- sapply(KarlukMixtures, function(x) KarlukMixtures_DuplicateCheck95MinProportion[[x]]$report)
+
+## Remove duplicate individuals
+KarlukMixtures_RemovedDups <- RemoveDups.GCL(KarlukMixtures_DuplicateCheck95MinProportion)
+
+## Get number of individuals per silly after removing duplicate individuals
+ColSize_KarlukMixtures_PostDuplicate <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures_SampleSizes[,"Duplicate"] <- ColSize_KarlukMixtures_PostMissLoci-ColSize_KarlukMixtures_PostDuplicate
+
+
+### Final
+KarlukMixtures_SampleSizes[,"Final"] <- ColSize_KarlukMixtures_PostDuplicate
+KarlukMixtures_SampleSizes
+
+write.xlsx(KarlukMixtures_SampleSizes,file="Output/KarlukMixtures_SampleSizes.xlsx")
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Combine Loci ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## Get the final locus set from baseline file to avoid any errors
+loci91 <- dget(file="V:/WORK/Sockeye/Kodiak/2014 Karluk Baseline/Objects/loci91.txt")
+
+## Combine loci
+CombineLoci.GCL(sillyvec=KarlukMixtures,markerset=c("One_Cytb_26","One_CO1","One_Cytb_17"),update=T)
+
+## NOTE THAT THESE LOCI ARE DROPPED c("One_CO1","One_Cytb_17","One_Cytb_26","One_MHC2_251","One_GPDH","One_Tf_ex3-182")
