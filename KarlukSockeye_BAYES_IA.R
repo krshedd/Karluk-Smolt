@@ -3080,40 +3080,40 @@ SKARLW15s.gcl <- dget(file = "Raw genotypes/OriginalCollections/SKARLW15s.txt")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#### Define strata by time for 2013 and 2014 trap fish ####
+#### Define strata by time for 2015 trap fish ####
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#### 2013
+#### 2015
+unique(SKARLW15s.gcl$attributes$CAPTURE_DATE)
+table(SKARLW15s.gcl$attributes$CAPTURE_DATE)
+sapply(list(1:6, 7:20, 21:41), function(lst) {sum(table(SKARLW15s.gcl$attributes$CAPTURE_DATE)[lst])})
 
-## Stratum 1 -  5/16-29
+## Stratum 1 -  5/25-30
 
-unique(SKARL13s.gcl$attributes$CAPTURE_DATE)
-lapply(list(1:8, 9:16, 17:27), function(lst) {sum(table(SKARL13s.gcl$attributes$CAPTURE_DATE)[lst])})
+KarlukSmolt2015.1_IDs <- AttributesToIDs.GCL(silly="SKARLW15s",attribute="CAPTURE_DATE",matching=unique(SKARLW15s.gcl$attributes$CAPTURE_DATE)[1:6])
+KarlukSmolt2015.1_IDs <- list(na.omit(KarlukSmolt2015.1_IDs))
+names(KarlukSmolt2015.1_IDs) <- "SKARLW15s"
 
-KarlukSmolt2013.1_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[1:8])
-KarlukSmolt2013.1_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.1_IDs)))
-names(KarlukSmolt2013.1_IDs) <- "SKARL13s"
+PoolCollections.GCL("SKARLW15s",loci=loci96,IDs=KarlukSmolt2015.1_IDs,newname="KarlukSmolt2015.1")
+KarlukSmolt2015.1.gcl$n ##  
 
-PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.1_IDs,newname="KarlukSmolt2013.1")
-KarlukSmolt2013.1.gcl$n ##  
+## Stratum 2 -  5/31-6/15
 
-## Stratum 2 -  5/30-6/10
+KarlukSmolt2015.2_IDs <- AttributesToIDs.GCL(silly="SKARLW15s",attribute="CAPTURE_DATE",matching=unique(SKARLW15s.gcl$attributes$CAPTURE_DATE)[7:20])
+KarlukSmolt2015.2_IDs <- list(na.omit(KarlukSmolt2015.2_IDs))
+names(KarlukSmolt2015.2_IDs) <- "SKARLW15s"
 
-KarlukSmolt2013.2_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[9:16])
-KarlukSmolt2013.2_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.2_IDs)))
-names(KarlukSmolt2013.2_IDs) <- "SKARL13s"
+PoolCollections.GCL("SKARLW15s",loci=loci96,IDs=KarlukSmolt2015.2_IDs,newname="KarlukSmolt2015.2")
+KarlukSmolt2015.2.gcl$n ##  
 
-PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.2_IDs,newname="KarlukSmolt2013.2")
-KarlukSmolt2013.2.gcl$n ##  
+## Stratum 3 -  6/16-7/09
 
-## Stratum 3 -  6/11-6/24
+KarlukSmolt2015.3_IDs <- AttributesToIDs.GCL(silly="SKARLW15s",attribute="CAPTURE_DATE",matching=unique(SKARLW15s.gcl$attributes$CAPTURE_DATE)[21:41])
+KarlukSmolt2015.3_IDs <- list(na.omit(KarlukSmolt2015.3_IDs))
+names(KarlukSmolt2015.3_IDs) <- "SKARLW15s"
 
-KarlukSmolt2013.3_IDs <- AttributesToIDs.GCL(silly="SKARL13s",attribute="CAPTURE_DATE",matching=unique(SKARL13s.gcl$attributes$CAPTURE_DATE)[17:27])
-KarlukSmolt2013.3_IDs <- list(as.numeric(na.omit(KarlukSmolt2013.3_IDs)))
-names(KarlukSmolt2013.3_IDs) <- "SKARL13s"
-
-PoolCollections.GCL("SKARL13s",loci=loci96,IDs=KarlukSmolt2013.3_IDs,newname="KarlukSmolt2013.3")
-KarlukSmolt2013.3.gcl$n ##  
+PoolCollections.GCL("SKARLW15s",loci=loci96,IDs=KarlukSmolt2015.3_IDs,newname="KarlukSmolt2015.3")
+KarlukSmolt2015.3.gcl$n ##  
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #### QC ####
@@ -3121,66 +3121,65 @@ KarlukSmolt2013.3.gcl$n ##
 
 require(xlsx)
 
-KarlukMixtures <- unlist(strsplit(ls(pattern='\\.gcl'),split='\\.gcl'))
-dput(x=KarlukMixtures,file="Objects/KarlukMixtures.txt")
+KarlukMixtures2015 <- unlist(strsplit(ls(pattern='\\.gcl'),split='\\.gcl'))
+dput(x=KarlukMixtures2015,file="Objects/KarlukMixtures2015.txt")
 
-KarlukMixtures_SampleSizes <- matrix(data=NA,nrow=length(KarlukMixtures),ncol=5,dimnames=list(KarlukMixtures,c("Genotyped","Alternate","Missing","Duplicate","Final")))
+KarlukMixtures2015_SampleSizes <- matrix(data=NA,nrow=length(KarlukMixtures2015),ncol=5,dimnames=list(KarlukMixtures2015,c("Genotyped","Alternate","Missing","Duplicate","Final")))
 
 
 #### Check loci
 ## Get sample size by locus
-Original_KarlukMixtures_SampleSizebyLocus <- SampSizeByLocus.GCL(KarlukMixtures, loci96)
-min(Original_KarlukMixtures_SampleSizebyLocus) ## 70
-apply(Original_KarlukMixtures_SampleSizebyLocus,1,min)/apply(Original_KarlukMixtures_SampleSizebyLocus,1,max) # Known from QC that SKARLW14s had issues
+Original_KarlukMixtures2015_SampleSizebyLocus <- SampSizeByLocus.GCL(KarlukMixtures2015, loci96)
+min(Original_KarlukMixtures2015_SampleSizebyLocus) ## 238
+apply(Original_KarlukMixtures2015_SampleSizebyLocus,1,min)/apply(Original_KarlukMixtures2015_SampleSizebyLocus,1,max)
 
-t(sort(Original_KarlukMixtures_SampleSizebyLocus[KarlukMixtures[9],]/max(Original_KarlukMixtures_SampleSizebyLocus[KarlukMixtures[9],]),decreasing=TRUE)) # One_ZNF.61 is just below the 80% rule for SKARLW14s
 
 #### Check individuals
 ### Initial
 ## Get number of individuals per silly before removing missing loci individuals
-Original_KarlukMixtures_ColSize <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
-KarlukMixtures_SampleSizes[,"Genotyped"] <- Original_KarlukMixtures_ColSize
+Original_KarlukMixtures2015_ColSize <- sapply(paste(KarlukMixtures2015,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures2015_SampleSizes[,"Genotyped"] <- Original_KarlukMixtures2015_ColSize
 
 
 ### Alternate
 ## Indentify alternate species individuals
-KarlukMixtures_Alternate <- FindAlternateSpecies.GCL(sillyvec=KarlukMixtures, species="sockeye")
+KarlukMixtures2015_Alternate <- FindAlternateSpecies.GCL(sillyvec=KarlukMixtures2015, species="sockeye")
 
 ## Remove Alternate species individuals
-RemoveAlternateSpecies.GCL(AlternateSpeciesReport=KarlukMixtures_Alternate, AlternateCutOff=0.5, FailedCutOff=0.5)
+RemoveAlternateSpecies.GCL(AlternateSpeciesReport=KarlukMixtures2015_Alternate, AlternateCutOff=0.5, FailedCutOff=0.5)
 
 ## Get number of individuals per silly after removing alternate species individuals
-ColSize_KarlukMixtures_PostAlternate <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
-KarlukMixtures_SampleSizes[,"Alternate"] <- Original_KarlukMixtures_ColSize-ColSize_KarlukMixtures_PostAlternate
+ColSize_KarlukMixtures2015_PostAlternate <- sapply(paste(KarlukMixtures2015,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures2015_SampleSizes[,"Alternate"] <- Original_KarlukMixtures2015_ColSize-ColSize_KarlukMixtures2015_PostAlternate
 
 
 ### Missing
 ## Remove individuals with >20% missing data
-KarlukMixtures_MissLoci <- RemoveIndMissLoci.GCL(sillyvec=KarlukMixtures,loci=loci96,proportion=0.8)
+KarlukMixtures2015_MissLoci <- RemoveIndMissLoci.GCL(sillyvec=KarlukMixtures2015,proportion=0.8)
 
 ## Get number of individuals per silly after removing missing loci individuals
-ColSize_KarlukMixtures_PostMissLoci <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
-KarlukMixtures_SampleSizes[,"Missing"] <- ColSize_KarlukMixtures_PostAlternate-ColSize_KarlukMixtures_PostMissLoci
+ColSize_KarlukMixtures2015_PostMissLoci <- sapply(paste(KarlukMixtures2015,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures2015_SampleSizes[,"Missing"] <- ColSize_KarlukMixtures2015_PostAlternate-ColSize_KarlukMixtures2015_PostMissLoci
 
 
 ### Duplicate
 ## Check within collections for duplicate individuals.
-KarlukMixtures_DuplicateCheck95MinProportion <- CheckDupWithinSilly.GCL(sillyvec=KarlukMixtures,loci=loci96,quantile=NULL,minproportion=0.95)
-KarlukMixtures_DuplicateCheckReportSummary <- sapply(KarlukMixtures, function(x) KarlukMixtures_DuplicateCheck95MinProportion[[x]]$report)
+KarlukMixtures2015_DuplicateCheck95MinProportion <- CheckDupWithinSilly.GCL(sillyvec=KarlukMixtures2015,loci=loci96,quantile=NULL,minproportion=0.95)
+KarlukMixtures2015_DuplicateCheckReportSummary <- sapply(KarlukMixtures2015, function(x) KarlukMixtures2015_DuplicateCheck95MinProportion[[x]]$report)
 
 ## Remove duplicate individuals
-KarlukMixtures_RemovedDups <- RemoveDups.GCL(KarlukMixtures_DuplicateCheck95MinProportion)
+KarlukMixtures2015_RemovedDups <- RemoveDups.GCL(KarlukMixtures2015_DuplicateCheck95MinProportion)
 
 ## Get number of individuals per silly after removing duplicate individuals
-ColSize_KarlukMixtures_PostDuplicate <- sapply(paste(KarlukMixtures,".gcl",sep=''), function(x) get(x)$n)
-KarlukMixtures_SampleSizes[,"Duplicate"] <- ColSize_KarlukMixtures_PostMissLoci-ColSize_KarlukMixtures_PostDuplicate
+ColSize_KarlukMixtures2015_PostDuplicate <- sapply(paste(KarlukMixtures2015,".gcl",sep=''), function(x) get(x)$n)
+KarlukMixtures2015_SampleSizes[,"Duplicate"] <- ColSize_KarlukMixtures2015_PostMissLoci-ColSize_KarlukMixtures2015_PostDuplicate
 
 
 ### Final
-KarlukMixtures_SampleSizes[,"Final"] <- ColSize_KarlukMixtures_PostDuplicate
-KarlukMixtures_SampleSizes
+KarlukMixtures2015_SampleSizes[,"Final"] <- ColSize_KarlukMixtures2015_PostDuplicate
+KarlukMixtures2015_SampleSizes
 
-write.xlsx(KarlukMixtures_SampleSizes,file="Output/KarlukMixtures_SampleSizes.xlsx")
+write.xlsx(KarlukMixtures2015_SampleSizes,file="Output/KarlukMixtures2015_SampleSizes.xlsx")
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3188,9 +3187,160 @@ write.xlsx(KarlukMixtures_SampleSizes,file="Output/KarlukMixtures_SampleSizes.xl
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ## Get the final locus set from baseline file to avoid any errors
-loci91 <- dget(file="V:/WORK/Sockeye/Kodiak/2014 Karluk Baseline/Objects/loci91.txt")
+loci91 <- dget(file="V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Baseline/Objects/loci91.txt")
 
 ## Combine loci
-CombineLoci.GCL(sillyvec=KarlukMixtures,markerset=c("One_Cytb_26","One_CO1","One_Cytb_17"),update=T)
+CombineLoci.GCL(sillyvec=KarlukMixtures2015,markerset=c("One_Cytb_26","One_CO1","One_Cytb_17"),update=T)
 
 ## NOTE THAT THESE LOCI ARE DROPPED c("One_CO1","One_Cytb_17","One_Cytb_26","One_MHC2_251","One_GPDH","One_Tf_ex3-182")
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Calculate straight likelihoods for individuals ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+require(beepr)
+## Get baseline objects
+groupnames <- dget(file="V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Baseline/Objects/KarlukGroups2.txt")
+groupvec <- dget(file="V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Baseline/Objects/Karluk16GroupVec2.txt")
+sillyvec_baseline <- dget(file="V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Baseline/Objects/Karluk16Pops.txt")
+loci <- loci91
+C=as.vector(table(groupvec))
+G=length(C)
+popP <- setNames(object=rep(x=1/C/G, C), nm=sillyvec_baseline[order(groupvec)])[sillyvec_baseline] # Use to assure equal probability to each RG, not to each Pop
+
+nsilly=length(sillyvec_baseline)
+nloci=length(loci)
+alleles=LocusControl$alleles[loci]
+nalleles=LocusControl$nalleles[loci]
+ploidy=LocusControl$ploidy[loci]
+
+
+## Read in BAYES baseline .bse file to get baseline allele frequencies
+baseline <- scan(file="V:/Analysis/4_Westward/Sockeye/Karluk Smolt 2013-2015/Baseline/BAYES/Baseline/Karluk16Pops91Markers.bse")
+str(baseline)
+
+baseline_mat <- matrix(data=baseline, nrow=nsilly*nloci, ncol=1+1+1+max(nalleles), byrow=TRUE)
+colnames(baseline_mat) <- c("RG", "loci", "n", paste("Allele ", 1:max(nalleles), sep=""))
+str(baseline_mat)
+head(baseline_mat)
+
+
+## Get baseline allele frequencies
+q=array(NA,c(nsilly,nloci,max(nalleles)),dimnames=list(sillyvec_baseline,loci,paste("Allele ",1:max(nalleles),sep="")))
+for(silly in sillyvec_baseline){
+  for(locus in loci){
+    q[silly,locus,1:nalleles[locus]]=(baseline_mat[which(baseline_mat[,"loci"]==which(loci==locus) & baseline_mat[,"RG"]==which(sillyvec_baseline==silly)), 4:(3+nalleles[locus])] + 1/nalleles[locus]) / (baseline_mat[which(baseline_mat[,"loci"]==which(loci==locus) & baseline_mat[,"RG"]==which(sillyvec_baseline==silly)), "n"] + 1)
+  }
+}
+
+## Get mixture genotypes
+
+sillyvec <- KarlukMixtures2015
+
+my.gcl=lapply(sillyvec,function(silly){get(paste(silly,".gcl",sep=""),pos=1)})
+names(my.gcl)=sillyvec  
+
+n=sapply(my.gcl,function(gcl){gcl$n})
+names(n)=sillyvec
+
+counts=lapply(my.gcl,function(gcl){gcl$counts[,loci,]})
+names(counts)=sillyvec
+
+Y=FreqPop.GCL(sillyvec,loci)
+
+## Likelihood function
+genofunc=function(x,theta,NAind){return(prod(sapply(loci[NAind],function(locus){2*dmultinom(x=x[locus,1:nalleles[locus]],size=ploidy[locus],prob=theta[locus,1:nalleles[locus]])})))}
+
+T=lapply(sillyvec_baseline,function(silly1){TT=lapply(sillyvec,function(silly2){rep(NA,n[silly2])});names(TT)=sillyvec;TT});names(T)=sillyvec_baseline
+P=lapply(sillyvec_baseline,function(silly1){PP=lapply(sillyvec,function(silly2){rep(NA,n[silly2])});names(PP)=sillyvec;PP});names(P)=sillyvec_baseline
+
+for(silly1 in sillyvec){
+  for(m in seq(n[silly1])){
+    x=counts[[silly1]][m,1:nloci,1:max(nalleles)]
+    NAind=!is.na(x[1:nloci,1])
+    theta=q[1:nsilly,1:nloci,1:max(nalleles)]
+    for(silly2 in sillyvec_baseline){
+      P[[silly2]][[silly1]][m]=popP[[silly2]]*genofunc(x=x,theta=theta[silly2,1:nloci,1:max(nalleles)],NAind)
+    }  
+    for(silly2 in sillyvec_baseline){
+      T[[silly2]][[silly1]][m]=P[[silly2]][[silly1]][m]/sum(sapply(sillyvec_baseline,function(silly){P[[silly]][[silly1]][m]}))
+    }  
+  }
+}
+
+
+RT=lapply(seq(G),function(g){RTT=lapply(sillyvec,function(silly1){rep(NA,n[silly1])});names(RTT)=sillyvec;RTT});names(RT)=groupnames
+
+for(silly1 in sillyvec){
+  for(m in seq(n[silly1])){
+    for(g in seq(G)){
+      rt=0
+      for(silly2 in sillyvec_baseline[which(groupvec==g)]){
+        rt=rt+T[[silly2]][[silly1]][m] 
+      }
+      RT[[groupnames[g]]][[silly1]][m]=rt
+    }
+  }
+}; beep(2)
+
+
+KarlukSmolt_IndividualAssignments2015_Likelihood <- setNames(lapply(KarlukMixtures2015, function(mix) {matrix(data=round(c(unlist(RT[[1]][mix]), unlist(RT[[2]][mix])),3), ncol=2, dimnames=list(seq(length(unlist(RT[[1]][mix]))), groupnames))}), KarlukMixtures2015)
+str(KarlukSmolt_IndividualAssignments2015_Likelihood)
+
+# Reformat to match output of IndividualAssignmentKS.GCL
+KarlukSmolt_IndividualAssignments2015_Likelihood<- sapply(1:4, function(i) {matrix(data=round(c(unlist(RT[[1]][i]), unlist(RT[[2]][i])),3), ncol=2, dimnames=list(names(unlist(RT[[1]][i])), groupnames))})
+names(KarlukSmolt_IndividualAssignments2015_Likelihood) <- KarlukMixtures2015
+str(KarlukSmolt_IndividualAssignments2015_Likelihood)
+
+
+# Distribution of probabilities
+sapply(KarlukMixtures2015, function(silly) {hist(KarlukSmolt_IndividualAssignments2015_Likelihood[[silly]][, "KarlukEarly"], col = 8, main = silly, xlab = "Probability Karluk Early")})
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#### Use Likelihoods to Assign Individuals ####
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# NOTE: we want to provide the "hard assignments" as well as stock specific estimates of the % unclassified and % misclassified
+
+### 2015
+## "Relaxed" threshold (0.80)
+relax <- 0.8
+
+Metadata2015 <- read.csv(file = "KarlukMetadata2015Weir.csv")
+str(Metadata2015)
+Metadata2015$RelaxedAssignment <- rep(as.vector(x=NA, mode="character"), dim(Metadata2015)[1])
+
+# Confirm number of fish
+length(as.character(KarlukSmolt2015.1.gcl$attributes$SillySource))
+dim(KarlukSmolt_IndividualAssignments2015_Likelihood$KarlukSmolt2015.1)[1]
+
+# Match fish and assign based on likelihood
+Metadata2015$RelaxedAssignment <-  ifelse(KarlukSmolt_IndividualAssignments2015_Likelihood$SKARLW15s[,"KarlukEarly"] >= relax, "Early", 
+                                          ifelse(KarlukSmolt_IndividualAssignments2015_Likelihood$SKARLW15s[,"KarlukLate"] >= relax,"Late", NA))
+
+# Make sure it is okay
+head(Metadata2015,20)
+
+
+## "Strict" threshold (0.95)
+strict <- 0.95
+
+Metadata2015$StrictAssignment <- rep(as.vector(x=NA, mode="character"), dim(Metadata2015)[1])
+
+# Match fish and assign based on likelihood
+Metadata2015$StrictAssignment <-  ifelse(KarlukSmolt_IndividualAssignments2015_Likelihood$SKARLW15s[,"KarlukEarly"] >= strict, "Early", 
+                                          ifelse(KarlukSmolt_IndividualAssignments2015_Likelihood$SKARLW15s[,"KarlukLate"] >= strict,"Late", NA))
+
+# Make sure it is okay
+head(Metadata2015,20)
+
+# How many fish assigned by age
+table(Metadata2015$StrictAssignment, Metadata2015$AGE)
+table(Metadata2015$RelaxedAssignment, Metadata2015$AGE)
+
+
+# Write results
+write.csv(x=Metadata2015, file="KarlukSmoltAssignments2015.csv", row.names=FALSE)
